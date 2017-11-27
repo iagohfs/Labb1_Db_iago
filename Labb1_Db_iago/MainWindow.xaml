@@ -5,8 +5,24 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Labb1_Db_iago"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
-    <Grid>
-        
+        Title="MainWindow" Height="291" Width="648" ResizeMode="CanMinimize">
+    <Grid Margin="0,0,2,0">
+        <ListBox x:Name="ListBox_Left" HorizontalAlignment="Left" Height="160" Margin="180,40,0,0" VerticalAlignment="Top" Width="120" SelectionChanged="ListBox_Left_SelectionChanged"/>
+        <ListBox x:Name="ListBox_Right" HorizontalAlignment="Left" Height="160" Margin="340,40,0,0" VerticalAlignment="Top" Width="120" SelectionChanged="ListBox_Right_SelectionChanged"/>
+        <Button x:Name="B_Open" Content="Open" HorizontalAlignment="Left" Margin="500,221,0,0" VerticalAlignment="Top" Width="80" Click="B_Open_Click" Height="19"/>
+        <TextBox x:Name="TextBox_R1" HorizontalAlignment="Left" Height="20" Margin="500,40,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="80"/>
+        <TextBox x:Name="TextBox_L1" HorizontalAlignment="Left" Height="20" Margin="60,40,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="80"/>
+        <TextBox x:Name="TextBox_L2" HorizontalAlignment="Left" Height="20" Margin="60,80,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="80"/>
+        <TextBox x:Name="TextBox_R2" HorizontalAlignment="Left" Height="20" Margin="500,80,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="80"/>
+        <TextBox x:Name="TextBox_R3" HorizontalAlignment="Left" Height="20" Margin="500,120,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="80"/>
+        <Button x:Name="Save" Content="Save" HorizontalAlignment="Left" Margin="60,155,0,0" VerticalAlignment="Top" Width="80" IsEnabled="False"/>
+        <Button x:Name="Add" Content="Add" HorizontalAlignment="Left" Margin="60,130,0,0" VerticalAlignment="Top" Width="80" IsEnabled="False"/>
+        <Button x:Name="Delete" Content="Delete" HorizontalAlignment="Left" Margin="60,180,0,0" VerticalAlignment="Top" Width="80" IsEnabled="False" Click="Delete_Click"/>
+        <Label Content="Name" HorizontalAlignment="Left" Margin="56,17,0,0" VerticalAlignment="Top" Height="26"/>
+        <Label Content="Year" HorizontalAlignment="Left" Margin="57,57,0,0" VerticalAlignment="Top" Height="26"/>
+        <Label Content="Engine" HorizontalAlignment="Left" Margin="496,17,0,0" VerticalAlignment="Top" Height="26"/>
+        <Label Content="0-100" HorizontalAlignment="Left" Margin="496,57,0,0" VerticalAlignment="Top" Height="26"/>
+        <Label Content="Car Type" HorizontalAlignment="Left" Margin="496,97,0,0" VerticalAlignment="Top" Height="26"/>
+
     </Grid>
 </Window>
