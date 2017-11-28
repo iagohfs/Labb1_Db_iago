@@ -16,13 +16,16 @@
         <TextBox x:Name="TextBox_R2" HorizontalAlignment="Left" Height="20" Margin="500,80,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="80"/>
         <TextBox x:Name="TextBox_R3" HorizontalAlignment="Left" Height="20" Margin="500,120,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="80"/>
         <Button x:Name="Save" Content="Save" HorizontalAlignment="Left" Margin="60,155,0,0" VerticalAlignment="Top" Width="80" IsEnabled="False"/>
-        <Button x:Name="Add" Content="Add" HorizontalAlignment="Left" Margin="60,130,0,0" VerticalAlignment="Top" Width="80" IsEnabled="False"/>
+        <Button x:Name="Add_Left" Content="New Table" HorizontalAlignment="Left" Margin="60,130,0,0" VerticalAlignment="Top" Width="80" IsEnabled="False" Click="Add_Left_Click"/>
         <Button x:Name="Delete" Content="Delete" HorizontalAlignment="Left" Margin="60,180,0,0" VerticalAlignment="Top" Width="80" IsEnabled="False" Click="Delete_Click"/>
         <Label Content="Name" HorizontalAlignment="Left" Margin="56,17,0,0" VerticalAlignment="Top" Height="26"/>
         <Label Content="Year" HorizontalAlignment="Left" Margin="57,57,0,0" VerticalAlignment="Top" Height="26"/>
         <Label Content="Engine" HorizontalAlignment="Left" Margin="496,17,0,0" VerticalAlignment="Top" Height="26"/>
         <Label Content="0-100" HorizontalAlignment="Left" Margin="496,57,0,0" VerticalAlignment="Top" Height="26"/>
         <Label Content="Car Type" HorizontalAlignment="Left" Margin="496,97,0,0" VerticalAlignment="Top" Height="26"/>
+        <Label Content="1 : N" HorizontalAlignment="Left" Margin="304,106,0,0" VerticalAlignment="Top"/>
+        <Button x:Name="Debug" Content="Debug is Off" HorizontalAlignment="Left" Margin="500,180,0,0" VerticalAlignment="Top" Width="80" Click="Debug_Click" IsEnabled="False"/>
+        <Label x:Name="Debug_L" Content="" HorizontalAlignment="Left" Margin="497,145,0,0" VerticalAlignment="Top" Height="30" Width="84"/>
 
     </Grid>
 </Window>
