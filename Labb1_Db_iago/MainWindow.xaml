@@ -16,8 +16,8 @@
         <TextBox x:Name="TextBox_LSeconds" HorizontalAlignment="Left" Height="20" Margin="80,80,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="80"/>
         <TextBox x:Name="TextBox_LType" HorizontalAlignment="Left" Height="20" Margin="80,120,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="80"/>
         <Button x:Name="Save" Content="Save" HorizontalAlignment="Left" Margin="480,155,0,0" VerticalAlignment="Top" Width="80" IsEnabled="False" Cursor="Hand"/>
-        <Button x:Name="New_Table" Content="New Table" HorizontalAlignment="Left" Margin="480,130,0,0" VerticalAlignment="Top" Width="80" IsEnabled="False" Click="New_Table_Click" Cursor="Hand"/>
-        <Button x:Name="Delete" Content="Delete" HorizontalAlignment="Left" Margin="480,180,0,0" VerticalAlignment="Top" Width="80" IsEnabled="False" Click="Delete_Click" Cursor="Hand"/>
+        <Button x:Name="New_Table" Content="New Car" HorizontalAlignment="Left" Margin="480,130,0,0" VerticalAlignment="Top" Width="80" IsEnabled="False" Click="New_Table_Click" Cursor="Hand"/>
+        <Button x:Name="Sell" Content="Sell" HorizontalAlignment="Left" Margin="480,180,0,0" VerticalAlignment="Top" Width="80" IsEnabled="False" Click="Sell_Click" Cursor="Hand"/>
         <Label Content="Name" HorizontalAlignment="Left" Margin="476,12,0,0" VerticalAlignment="Top" Height="26"/>
         <Label Content="Year" HorizontalAlignment="Left" Margin="476,52,0,0" VerticalAlignment="Top" Height="26"/>
         <Label Content="Engine" HorizontalAlignment="Left" Margin="76,17,0,0" VerticalAlignment="Top" Height="26"/>

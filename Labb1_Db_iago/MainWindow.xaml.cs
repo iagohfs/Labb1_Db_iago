@@ -35,6 +35,8 @@ namespace Labb1_Db_iago
         private bool Debugger;
         int ListCountRight { get; set; }
         int ListCountLeft { get; set; }
+        public int ItemIdLeft { get; private set; }
+        public int ItemIdRight { get; private set; }
 
         public MainWindow()
         {
@@ -57,6 +59,8 @@ namespace Labb1_Db_iago
             if (ListBox_Left.SelectedIndex > -1)
             {
                 LeftBoxPrintSelectedItem(ListBox_Left.SelectedIndex);
+
+                if (Debugger) ListBox_Left.Items.Add(GetItemIdLeft());
             }
 
             if (ListBox_Left.IsMouseOver && ListBox_Left.SelectedIndex > -1)
@@ -66,7 +70,7 @@ namespace Labb1_Db_iago
                 leftIsSelected = true;
                 if (Debugger) Debug_Label.Content = "LB " + leftIsSelected.ToString() + "\nRB " + rightIsSelected.ToString();
                 New_Table.IsEnabled = true;
-                Delete.IsEnabled = true;
+                Sell.IsEnabled = true;
             }
 
         }
@@ -76,6 +80,8 @@ namespace Labb1_Db_iago
             if (ListBox_Right.SelectedIndex >= 0)
             {
                 RightBoxPrintSelectedItem(ListBox_Right.SelectedIndex);
+
+                if (Debugger) ListBox_Right.Items.Add(GetItemIdRight());
             }
 
             if (ListBox_Right.IsMouseOver && ListBox_Right.SelectedIndex > -1)
@@ -85,7 +91,7 @@ namespace Labb1_Db_iago
                 rightIsSelected = true;
                 if (Debugger) Debug_Label.Content = "RB " + rightIsSelected.ToString() + "\nLB " + leftIsSelected.ToString();
                 New_Table.IsEnabled = true;
-                Delete.IsEnabled = true;
+                Sell.IsEnabled = true;
             }
 
         }
@@ -94,6 +100,7 @@ namespace Labb1_Db_iago
         {
             LeftTable(update);
             RightTable(update);
+
         }
 
         private void LeftTable(string commandL)
@@ -125,12 +132,81 @@ namespace Labb1_Db_iago
 
         }
 
-        private void Delete_Click(object sender, RoutedEventArgs e)
+        private void Sell_Click(object sender, RoutedEventArgs e)
         {
-            if (rightIsSelected) DeleteRight(ListBox_Right.SelectedIndex);
+            if (rightIsSelected) DeleteRight(GetItemIdRight());
 
-            if (leftIsSelected) DeleteLeft(ListBox_Left.SelectedIndex);
+            if (leftIsSelected) DeleteLeft(GetItemIdLeft());
+        }
 
+        private int GetItemIdLeft()
+        {
+            SqlConnection leftConnection = new SqlConnection(connectionStringPC);
+
+            try
+            {
+                string rightBoxQuery = $"Select * From (Select Row_Number() Over (Order By Id) As RwNr, * From VehiclesL) t2 Where RwNr = {ListBox_Left.SelectedIndex + 1}";
+
+                leftConnection.Open();
+
+                int tempIndexLeft = 0;
+
+                SqlCommand command = new SqlCommand(rightBoxQuery, leftConnection);
+
+                using (SqlDataReader dataReader = command.ExecuteReader())
+                {
+                    while (dataReader.Read())
+                    {
+                        tempIndexLeft = (int)(dataReader["Id"]);
+                    }
+                }
+
+                leftConnection.Close();
+
+                ItemIdLeft = tempIndexLeft;
+
+            }
+            catch (Exception)
+            {
+                ConnectionError('L', "Id L");
+            }
+
+            return ItemIdLeft;
+        }
+
+        private int GetItemIdRight()
+        {
+            SqlConnection rightConnection = new SqlConnection(connectionStringPC);
+
+            try
+            {
+                string rightBoxQuery = $"Select * From (Select Row_Number() Over (Order By CarId) As RwNr, * From VehiclesR) t2 Where RwNr = {ListBox_Right.SelectedIndex + 1}";
+
+                rightConnection.Open();
+
+                int tempIndexRight = 0;
+
+                SqlCommand command = new SqlCommand(rightBoxQuery, rightConnection);
+
+                using (SqlDataReader dataReader = command.ExecuteReader())
+                {
+                    while (dataReader.Read())
+                    {
+                        tempIndexRight = (int)(dataReader["CarId"]);
+                    }
+                }
+
+                rightConnection.Close();
+
+                ItemIdRight = tempIndexRight;
+
+            }
+            catch (Exception)
+            {
+                ConnectionError('R', "Id R");
+            }
+
+            return ItemIdRight;
         }
 
         private void DeleteLeft(int i)
@@ -139,7 +215,7 @@ namespace Labb1_Db_iago
 
             try
             {
-                string leftBoxQuery = $"delete From VehiclesL where Id = {(i + 1)}";
+                string leftBoxQuery = $"delete From VehiclesL where Id = {(i)}";
 
                 leftConnection.Open();
 
@@ -154,8 +230,7 @@ namespace Labb1_Db_iago
             }
             catch (Exception)
             {
-                ListBox_Left.Items.Insert(0, "SQL Error.");
-                ListBox_Right.Items.Insert(0, "SQL Error.");
+                ConnectionError('L', "Delete L");
             }
         }
 
@@ -165,7 +240,7 @@ namespace Labb1_Db_iago
 
             try
             {
-                string rightBoxQuery = $"delete From VehiclesR where CarId = {(i + 1)}";
+                string rightBoxQuery = $"delete From VehiclesR where CarId = {(i)}";
 
                 rightConnection.Open();
 
@@ -180,8 +255,7 @@ namespace Labb1_Db_iago
             }
             catch (Exception)
             {
-                ListBox_Left.Items.Insert(0, "SQL Error.");
-                ListBox_Right.Items.Insert(0, "SQL Error.");
+                ConnectionError('R', "Delete R");
             }
         }
 
@@ -191,11 +265,13 @@ namespace Labb1_Db_iago
             if (leftIsSelected)
             {
                 LeftTable("insert");
+                OpenUpdateDb();
             }
 
             if (rightIsSelected)
             {
                 RightTable("insert");
+                OpenUpdateDb();
             }
         }
 
@@ -223,7 +299,7 @@ namespace Labb1_Db_iago
             }
             catch (Exception)
             {
-                ListBox_Right.Items.Insert(0, "SQL Error.");
+                ConnectionError('R', "Print R");
             }
         }
 
@@ -232,8 +308,9 @@ namespace Labb1_Db_iago
             SqlConnection LeftBoxConnect = new SqlConnection(connectionStringPC);
 
             try
-            {
-                string rightQuery = $"Select * From (Select Row_Number() Over (Order By id) As RwNr, * From VehiclesL) t2 Where RwNr = 1 {i + 1}";
+            {   // Jag googlade denna lösning
+
+                string rightQuery = $"Select * From (Select Row_Number() Over (Order By id) As RwNr, * From VehiclesL) t2 Where RwNr = {i + 1}";
 
                 LeftBoxConnect.Open();
 
@@ -241,21 +318,23 @@ namespace Labb1_Db_iago
 
                 using (SqlDataReader dataReader = command.ExecuteReader())
                 {
-
                     while (dataReader.Read())
                     {
                         TextBox_LEngine.Text = (dataReader["Engine"].ToString());
                         TextBox_LSeconds.Text = (dataReader["0-100"].ToString());
-                        TextBox_LType.Text = (dataReader["Type"].ToString());                       
+                        TextBox_LType.Text = (dataReader["Type"].ToString());
                     }
 
                 }
 
+                LeftBoxConnect.Close();
+
+                RightBoxPrintSelectedItem(i);
+
             }
             catch (Exception)
             {
-
-                ListBox_Left.Items.Insert(0, "SQL Error.");
+                ConnectionError('L', "Print L");
             }
         }
 
@@ -275,11 +354,10 @@ namespace Labb1_Db_iago
 
                 rightInsertConnection.Close();
 
-                OpenUpdateDb();
             }
             catch (Exception)
             {
-                ConnectionError('R');
+                ConnectionError('R', "Insert R");
             }
 
         }
@@ -288,7 +366,6 @@ namespace Labb1_Db_iago
         {
             try
             {
-
                 SqlConnection leftInsertConnection = new SqlConnection(connectionStringPC);
 
                 string insertLeftQuery = $"insert into VehiclesL values ('Engine', '0-100s', 'Type', {(i + 1)})";
@@ -306,7 +383,7 @@ namespace Labb1_Db_iago
             }
             catch (SqlException)
             {
-                ConnectionError('L');
+                ConnectionError('L', "Insert L");
             }
         }
 
@@ -327,7 +404,7 @@ namespace Labb1_Db_iago
             }
             catch (Exception)
             {
-                ConnectionError('R');
+                ConnectionError('R', "TCount R");
             }
 
             return ListCountRight;
@@ -350,7 +427,7 @@ namespace Labb1_Db_iago
             }
             catch (Exception)
             {
-                ConnectionError('L');
+                ConnectionError('L', "TCount L");
             }
 
             if (CountRight() > ListCountLeft) return ListCountLeft + 1; else return ListCountLeft;
@@ -400,7 +477,7 @@ namespace Labb1_Db_iago
             }
             catch (Exception)
             {
-                ConnectionError('R');
+                ConnectionError('R', "Update R");
             }
 
         }
@@ -415,7 +492,7 @@ namespace Labb1_Db_iago
 
                 thisConnection.Open();
 
-                ListBox_Left.Items.Clear();                
+                ListBox_Left.Items.Clear();
 
                 SqlCommand command = new SqlCommand(updateLeft, thisConnection);
 
@@ -435,14 +512,14 @@ namespace Labb1_Db_iago
             }
             catch (Exception)
             {
-                ConnectionError('L');
+                ConnectionError('L', "Update L");
             }
         }
 
-        public void ConnectionError(char LR)
+        public void ConnectionError(char LR, string methodName)
         {
-            if (LR == 'l' || LR == 'L') ListBox_Left.Items.Insert(0, "SQL Error.");
-            if (LR == 'r' || LR == 'R') ListBox_Right.Items.Insert(0, "SQL Error.");
+            if (LR == 'l' || LR == 'L') ListBox_Left.Items.Add("SQL Error L: " + $"{methodName}");
+            if (LR == 'r' || LR == 'R') ListBox_Right.Items.Add("SQL Error R: " + $"{methodName}");
         }
     }
 
