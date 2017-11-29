@@ -21,9 +21,9 @@ namespace Labb1_Db_iago
     /// </summary>
     public partial class MainWindow : Window
     {
-        /* string connectionStringPC = @"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=Labb1_Db;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False"; */
+        string connectionStringPC = @"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=LabDb1;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
 
-        string connectionStringLaptop = @"Data Source=(localdb)\ProjectsV13;Initial Catalog=TestDb;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
+        /* string connectionStringLaptop = @"Data Source=(localdb)\ProjectsV13;Initial Catalog=TestDb;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";*/
 
         // Default Query "select VehiclesL.Name, VehiclesL.Year, VehiclesR.Engine, VehiclesR.[0 - 100], VehiclesR.Type from VehiclesL join VehiclesR on VehiclesL.Id = VehiclesR.CarId";
 
@@ -33,6 +33,8 @@ namespace Labb1_Db_iago
         private bool leftIsSelected;
         private bool rightIsSelected;
         private bool Debugger;
+        int ListCountRight { get; set; }
+        int ListCountLeft { get; set; }
 
         public MainWindow()
         {
@@ -42,45 +44,48 @@ namespace Labb1_Db_iago
         private void B_Open_Click(object sender, RoutedEventArgs e)
         {
             OpenUpdateDb();
-            Add_Left.IsEnabled = true;
+
             Debugger = false;
             Debug.IsEnabled = true;
-        }
-
-        private void ListBox_Right_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-
-            if (ListBox_Right.SelectedIndex >= 0)
-            {
-                RightBoxItemSelectedProperties(ListBox_Right.SelectedIndex);
-            }
-
-            if (ListBox_Right.IsMouseOver && ListBox_Right.SelectedIndex > -1)
-            {
-                leftIsSelected = false;
-
-
-                rightIsSelected = true;
-                if (Debugger) Debug_L.Content = "RBSlctd: " + rightIsSelected.ToString();
-            }
-
+            ListBox_Left.IsEnabled = true;
+            ListBox_Right.IsEnabled = true;
         }
 
         private void ListBox_Left_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
 
-            if (ListBox_Left.SelectedIndex >= 0)
+            if (ListBox_Left.SelectedIndex > -1)
             {
-                LeftBoxItemSelectedProperties(ListBox_Left.SelectedIndex);
+                LeftBoxPrintSelectedItem(ListBox_Left.SelectedIndex);
             }
 
             if (ListBox_Left.IsMouseOver && ListBox_Left.SelectedIndex > -1)
             {
                 rightIsSelected = false;
 
-
                 leftIsSelected = true;
-                if (Debugger) Debug_L.Content = "LBSlctd: " + leftIsSelected.ToString();
+                if (Debugger) Debug_Label.Content = "LB " + leftIsSelected.ToString() + "\nRB " + rightIsSelected.ToString();
+                New_Table.IsEnabled = true;
+                Delete.IsEnabled = true;
+            }
+
+        }
+
+        private void ListBox_Right_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (ListBox_Right.SelectedIndex >= 0)
+            {
+                RightBoxPrintSelectedItem(ListBox_Right.SelectedIndex);
+            }
+
+            if (ListBox_Right.IsMouseOver && ListBox_Right.SelectedIndex > -1)
+            {
+                leftIsSelected = false;
+
+                rightIsSelected = true;
+                if (Debugger) Debug_Label.Content = "RB " + rightIsSelected.ToString() + "\nLB " + leftIsSelected.ToString();
+                New_Table.IsEnabled = true;
+                Delete.IsEnabled = true;
             }
 
         }
@@ -93,6 +98,7 @@ namespace Labb1_Db_iago
 
         private void LeftTable(string commandL)
         {
+
             if (commandL == "update")
             {
                 UpdateLeft();
@@ -100,7 +106,7 @@ namespace Labb1_Db_iago
             }
             else if (commandL == "insert")
             {
-                InserLeft(CountLeft());
+                InsertLeft(CountLeft());
             }
 
         }
@@ -114,24 +120,36 @@ namespace Labb1_Db_iago
             }
             else if (commandR == "insert")
             {
-                InsertRight(CounterRight());
+                InsertRight(CountRight());
             }
 
         }
 
-        private async void Delete_Click(object sender, RoutedEventArgs e)
+        private void Delete_Click(object sender, RoutedEventArgs e)
         {
-            SqlConnection leftConnection = new SqlConnection(connectionStringLaptop);
+            if (rightIsSelected) DeleteRight(ListBox_Right.SelectedIndex);
+
+            if (leftIsSelected) DeleteLeft(ListBox_Left.SelectedIndex);
+
+        }
+
+        private void DeleteLeft(int i)
+        {
+            SqlConnection leftConnection = new SqlConnection(connectionStringPC);
 
             try
             {
-                string leftBoxQuery = $"delete From Vehicles where id = {ListBox_Left.SelectedIndex + 1}";
+                string leftBoxQuery = $"delete From VehiclesL where Id = {(i + 1)}";
 
-                await Task.Delay(1000);
+                leftConnection.Open();
 
-                //SqlCommand command = new SqlCommand(leftBoxQuery, leftConnection);
+                SqlCommand command = new SqlCommand(leftBoxQuery, leftConnection);
 
-                //int i = (int)command.ExecuteScalar();                
+                command.ExecuteNonQuery();
+
+                leftConnection.Close();
+
+                DeleteRight(i);
 
             }
             catch (Exception)
@@ -141,157 +159,183 @@ namespace Labb1_Db_iago
             }
         }
 
-        private void Add_Left_Click(object sender, RoutedEventArgs e)
+        private void DeleteRight(int i)
         {
-
-            if (true)
-            {
-                //LeftTable("insert");
-                //RightTable("insert");
-                //ListBox_Left.Items.Add("testing add");
-
-            }
-        }
-
-        public void LeftBoxItemSelectedProperties(int i)
-        {
-            SqlConnection LeftBoxConnection = new SqlConnection(connectionStringLaptop);
+            SqlConnection rightConnection = new SqlConnection(connectionStringPC);
 
             try
             {
-                string leftBoxQuery = $"select VehiclesL.Name, VehiclesL.Year from VehiclesL join VehiclesR on VehiclesL.Id = VehiclesR.CarId where id = {i + 1}";
+                string rightBoxQuery = $"delete From VehiclesR where CarId = {(i + 1)}";
 
-                LeftBoxConnection.Open();
+                rightConnection.Open();
 
-                SqlCommand command = new SqlCommand(leftBoxQuery, LeftBoxConnection);
+                SqlCommand command = new SqlCommand(rightBoxQuery, rightConnection);
+
+                command.ExecuteNonQuery();
+
+                rightConnection.Close();
+
+                OpenUpdateDb();
+
+            }
+            catch (Exception)
+            {
+                ListBox_Left.Items.Insert(0, "SQL Error.");
+                ListBox_Right.Items.Insert(0, "SQL Error.");
+            }
+        }
+
+        private void New_Table_Click(object sender, RoutedEventArgs e)
+        {
+
+            if (leftIsSelected)
+            {
+                LeftTable("insert");
+            }
+
+            if (rightIsSelected)
+            {
+                RightTable("insert");
+            }
+        }
+
+        public void RightBoxPrintSelectedItem(int i)
+        {
+            SqlConnection RightBoxConnection = new SqlConnection(connectionStringPC);
+
+            try
+            {
+                string rightBoxQuery = $"Select * From (Select Row_Number() Over (Order By Carid) As RwNr, * From VehiclesR) t2 Where RwNr = {i + 1}";
+
+                RightBoxConnection.Open();
+
+                SqlCommand command = new SqlCommand(rightBoxQuery, RightBoxConnection);
 
                 using (SqlDataReader dataReader = command.ExecuteReader())
                 {
 
                     while (dataReader.Read())
                     {
-                        TextBox_L1.Text = (dataReader["Name"].ToString());
-                        TextBox_L2.Text = (dataReader["Year"].ToString());
+                        TextBox_RName.Text = (dataReader["Name"].ToString());
+                        TextBox_RYear.Text = (dataReader["Year"].ToString());
                     }
                 }
             }
             catch (Exception)
             {
-                ListBox_Left.Items.Insert(0, "SQL Error.");
                 ListBox_Right.Items.Insert(0, "SQL Error.");
             }
         }
 
-        public void RightBoxItemSelectedProperties(int i)
+        public void LeftBoxPrintSelectedItem(int i)
         {
-            SqlConnection thisConnection = new SqlConnection(connectionStringLaptop);
+            SqlConnection LeftBoxConnect = new SqlConnection(connectionStringPC);
 
             try
             {
-                string Query = $"select VehiclesR.Engine, VehiclesR.[0-100], VehiclesR.Type from VehiclesL join VehiclesR on VehiclesL.Id = VehiclesR.CarId where id = {i + 1}";
+                string rightQuery = $"Select * From (Select Row_Number() Over (Order By id) As RwNr, * From VehiclesL) t2 Where RwNr = 1 {i + 1}";
 
-                thisConnection.Open();
+                LeftBoxConnect.Open();
 
-                SqlCommand command = new SqlCommand(Query, thisConnection);
+                SqlCommand command = new SqlCommand(rightQuery, LeftBoxConnect);
 
                 using (SqlDataReader dataReader = command.ExecuteReader())
                 {
 
                     while (dataReader.Read())
                     {
-                        TextBox_R1.Text = (dataReader["Engine"].ToString());
-                        TextBox_R2.Text = (dataReader["0-100"].ToString());
-                        TextBox_R3.Text = (dataReader["Type"].ToString());
+                        TextBox_LEngine.Text = (dataReader["Engine"].ToString());
+                        TextBox_LSeconds.Text = (dataReader["0-100"].ToString());
+                        TextBox_LType.Text = (dataReader["Type"].ToString());                       
                     }
 
-                    while (dataReader.Read())
-                    {
-                        l1 = (dataReader["Name"].ToString());
-                        l2 = (dataReader["Engine"].ToString());
-                        l3 = (dataReader["Year"].ToString());
-                    }
                 }
-            }
-            catch (Exception)
-            {
-
-                ListBox_Right.Items.Insert(0, "SQL Error.");
-            }
-        }
-
-        public void InserLeft(int i)
-        {
-            SqlConnection thisConnection = new SqlConnection(connectionStringLaptop);
-
-            try
-            {
-                string insertLeft = $"insert into VehiclesL values({i + 1}, 'name', 404)";
-
-                thisConnection.Open();
-
-                SqlCommand command = new SqlCommand(insertLeft, thisConnection);
 
             }
             catch (Exception)
             {
+
                 ListBox_Left.Items.Insert(0, "SQL Error.");
-                ListBox_Right.Items.Insert(0, "SQL Error.");
             }
-
         }
 
         public void InsertRight(int i)
         {
-            SqlConnection thisConnection = new SqlConnection(connectionStringLaptop);
+            SqlConnection rightInsertConnection = new SqlConnection(connectionStringPC);
 
             try
             {
-                string insertLeft = $"insert into VehiclesR values('Engine', '0-100s', 'Type', {i + 1})";
+                string insertRightQuery = $"insert into VehiclesR values ({(i + 1)}, 'Name', 1234)";
 
-                thisConnection.Open();
+                rightInsertConnection.Open();
 
-                SqlCommand command = new SqlCommand(insertLeft, thisConnection);
+                SqlCommand command = new SqlCommand(insertRightQuery, rightInsertConnection);
 
+                command.ExecuteNonQuery();
+
+                rightInsertConnection.Close();
+
+                OpenUpdateDb();
             }
             catch (Exception)
             {
-                ListBox_Left.Items.Insert(0, "SQL Error.");
-                ListBox_Right.Items.Insert(0, "SQL Error.");
+                ConnectionError('R');
+            }
+
+        }
+
+        public void InsertLeft(int i)
+        {
+            try
+            {
+
+                SqlConnection leftInsertConnection = new SqlConnection(connectionStringPC);
+
+                string insertLeftQuery = $"insert into VehiclesL values ('Engine', '0-100s', 'Type', {(i + 1)})";
+
+                leftInsertConnection.Open();
+
+                SqlCommand command = new SqlCommand(insertLeftQuery, leftInsertConnection);
+
+                command.ExecuteNonQuery();
+
+                leftInsertConnection.Close();
+
+                InsertRight(i);
+
+            }
+            catch (SqlException)
+            {
+                ConnectionError('L');
             }
         }
 
-        public int CounterRight()
+        public int CountRight()
         {
-            SqlConnection thisConnection = new SqlConnection(connectionStringLaptop);
-
-            int toReturn = 0;
+            SqlConnection thisConnection = new SqlConnection(connectionStringPC);
 
             try
             {
-                string countLeft = "select count(id) from VehiclesR ";
+                string countRight = "select count(CarId) from VehiclesR";
 
                 thisConnection.Open();
 
-                SqlCommand countCommand = new SqlCommand(countLeft, thisConnection);
+                SqlCommand countCommand = new SqlCommand(countRight, thisConnection);
 
-                int i = (int)countCommand.ExecuteScalar();
-
-                toReturn = i;
+                ListCountRight = (int)countCommand.ExecuteScalar();
 
             }
             catch (Exception)
             {
-                ListBox_Left.Items.Insert(0, "SQL Error.");
-                ListBox_Right.Items.Insert(0, "SQL Error.");
+                ConnectionError('R');
             }
 
-            return toReturn;
+            return ListCountRight;
         }
 
         public int CountLeft()
         {
-            SqlConnection thisConnection = new SqlConnection(connectionStringLaptop);
-            int toReturn = 0;
+            SqlConnection thisConnection = new SqlConnection(connectionStringPC);
 
             try
             {
@@ -301,18 +345,15 @@ namespace Labb1_Db_iago
 
                 SqlCommand countCommand = new SqlCommand(countLeft, thisConnection);
 
-                int i = (int)countCommand.ExecuteScalar();
-
-                toReturn = i;
+                ListCountLeft = (int)countCommand.ExecuteScalar();
 
             }
             catch (Exception)
             {
-                ListBox_Left.Items.Insert(0, "SQL Error.");
-                ListBox_Right.Items.Insert(0, "SQL Error.");
+                ConnectionError('L');
             }
 
-            return toReturn;
+            if (CountRight() > ListCountLeft) return ListCountLeft + 1; else return ListCountLeft;
         }
 
         private void Debug_Click(object sender, RoutedEventArgs e)
@@ -322,7 +363,7 @@ namespace Labb1_Db_iago
             {
                 Debugger = false;
                 Debug.Content = "Debug is Off";
-                Debug_L.Content = "";
+                Debug_Label.Content = "";
             }
             else
             {
@@ -332,29 +373,58 @@ namespace Labb1_Db_iago
 
         }
 
-        public async void UpdateLeft()
+        public void UpdateRight()
         {
-            SqlConnection thisConnection = new SqlConnection(connectionStringLaptop);
+            SqlConnection thisConnection = new SqlConnection(connectionStringPC);
 
             try
             {
-                string updateLeft = $"select count(Name) from VehiclesL";
+                string updateRight = $"select CarId from VehiclesR";
+
                 thisConnection.Open();
 
-                B_Open.Content = "Updating..";
-                B_Open.IsEnabled = false;
-                await Task.Delay(1000);
+                SqlCommand command = new SqlCommand(updateRight, thisConnection);
+
+                ListBox_Right.Items.Clear();
+
+                using (SqlDataReader dataReader = command.ExecuteReader())
+                {
+                    while (dataReader.Read())
+                    {
+                        ListBox_Right.Items.Add(dataReader["CarId"].ToString());
+                    }
+                }
+
+                ListBox_Right.SelectedIndex = 0;
+
+            }
+            catch (Exception)
+            {
+                ConnectionError('R');
+            }
+
+        }
+
+        public void UpdateLeft()
+        {
+            SqlConnection thisConnection = new SqlConnection(connectionStringPC);
+
+            try
+            {
+                string updateLeft = $"select Id from VehiclesL";
+
+                thisConnection.Open();
+
+                ListBox_Left.Items.Clear();                
 
                 SqlCommand command = new SqlCommand(updateLeft, thisConnection);
 
-                int i = (int)command.ExecuteScalar();
-
-                ListBox_Left.Items.Clear();
-
-                for (int x = 0; x < i; x++)
+                using (SqlDataReader dataReader = command.ExecuteReader())
                 {
-                    ListBox_Left.Items.Add("Car : " + (x + 1));
-                    await Task.Delay(50);
+                    while (dataReader.Read())
+                    {
+                        ListBox_Left.Items.Add(dataReader["Id"].ToString());
+                    }
                 }
 
                 B_Open.Content = "Update";
@@ -365,43 +435,14 @@ namespace Labb1_Db_iago
             }
             catch (Exception)
             {
-                ListBox_Left.Items.Insert(0, "SQL Error.");
-                ListBox_Right.Items.Insert(0, "SQL Error.");
+                ConnectionError('L');
             }
         }
 
-        public async void UpdateRight()
+        public void ConnectionError(char LR)
         {
-            SqlConnection thisConnection = new SqlConnection(connectionStringLaptop);
-
-            try
-            {
-                string updateRight = $"select count(Name) from VehiclesL";
-
-                thisConnection.Open();
-
-                await Task.Delay(1000);
-
-                SqlCommand command = new SqlCommand(updateRight, thisConnection);
-
-                int i = (int)command.ExecuteScalar();
-
-                ListBox_Right.Items.Clear();
-
-                for (int x = 0; x < i; x++)
-                {
-                    ListBox_Right.Items.Add("Car : " + (x + 1));
-                    await Task.Delay(50);
-                }
-
-                ListBox_Right.SelectedIndex = 0;
-
-            }
-            catch (Exception)
-            {
-                ListBox_Left.Items.Insert(0, "SQL Error.");
-                ListBox_Right.Items.Insert(0, "SQL Error.");
-            }
+            if (LR == 'l' || LR == 'L') ListBox_Left.Items.Insert(0, "SQL Error.");
+            if (LR == 'r' || LR == 'R') ListBox_Right.Items.Insert(0, "SQL Error.");
         }
     }
 
