@@ -5,27 +5,28 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Labb1_Db_iago"
         mc:Ignorable="d"
-        Title="My Database" Height="291" Width="648" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen">
+        Title="My Database" Height="291" Width="682.491" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen">
     <Grid Margin="0,0,2,0">
-        <ListBox x:Name="ListBox_Right" HorizontalAlignment="Left" Height="160" Margin="340,40,0,0" VerticalAlignment="Top" Width="120" SelectionChanged="ListBox_Right_SelectionChanged" Cursor="Hand" IsEnabled="False"/>
-        <ListBox x:Name="ListBox_Left" HorizontalAlignment="Left" Height="160" Margin="180,40,0,0" VerticalAlignment="Top" Width="120" SelectionChanged="ListBox_Left_SelectionChanged" Cursor="Hand" IsEnabled="False"/>
-        <Button x:Name="B_Open_Update" Content="Open" HorizontalAlignment="Left" Margin="480,221,0,0" VerticalAlignment="Top" Width="80" Click="B_Open_Update_Click" Height="19" Cursor="Hand"/>
+        <ListBox x:Name="ListBox_Right" HorizontalAlignment="Left" Height="160" Margin="380,40,0,0" VerticalAlignment="Top" Width="160" SelectionChanged="ListBox_Right_SelectionChanged" Cursor="Hand" IsEnabled="False"/>
+        <ListBox x:Name="ListBox_Left" HorizontalAlignment="Left" Height="160" Margin="180,40,0,0" VerticalAlignment="Top" Width="150" SelectionChanged="ListBox_Left_SelectionChanged" Cursor="Hand" IsEnabled="False" MouseDoubleClick="ListBox_Left_Double_Click"/>
+        <Button x:Name="B_Open_Update" Content="Open" HorizontalAlignment="Left" Margin="560,220,0,0" VerticalAlignment="Top" Width="80" Click="B_Open_Update_Click" Height="19" Cursor="Hand"/>
         <TextBox x:Name="TextBox_LEngine" HorizontalAlignment="Left" Height="20" Margin="80,40,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="80" PreviewTextInput="TextBox_LEngine_PreviewTextInput"/>
-        <TextBox x:Name="TextBox_RName" HorizontalAlignment="Left" Height="20" Margin="480,35,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="80" PreviewTextInput="TextBox_RName_PreviewTextInput"/>
-        <TextBox x:Name="TextBox_RYear" HorizontalAlignment="Left" Height="20" Margin="480,75,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="80" PreviewTextInput="TextBox_RYear_PreviewTextInput"/>
+        <TextBox x:Name="TextBox_RName" HorizontalAlignment="Left" Height="20" Margin="560,34,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="80" PreviewTextInput="TextBox_RName_PreviewTextInput"/>
+        <TextBox x:Name="TextBox_RYear" HorizontalAlignment="Left" Height="20" Margin="560,74,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="80" PreviewTextInput="TextBox_RYear_PreviewTextInput"/>
         <TextBox x:Name="TextBox_LSeconds" HorizontalAlignment="Left" Height="20" Margin="80,80,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="80" PreviewTextInput="TextBox_LSeconds_PreviewTextInput"/>
         <TextBox x:Name="TextBox_LType" HorizontalAlignment="Left" Height="20" Margin="80,120,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="80" PreviewTextInput="TextBox_LType_PreviewTextInput"/>
-        <Button x:Name="Save" Content="Save" HorizontalAlignment="Left" Margin="480,155,0,0" VerticalAlignment="Top" Width="80" IsEnabled="False" Cursor="Hand" Click="Save_Click"/>
-        <Button x:Name="New_Table" Content="New Car" HorizontalAlignment="Left" Margin="480,130,0,0" VerticalAlignment="Top" Width="80" IsEnabled="False" Click="New_Table_Click" Cursor="Hand"/>
-        <Button x:Name="Sell" Content="Sell" HorizontalAlignment="Left" Margin="480,180,0,0" VerticalAlignment="Top" Width="80" IsEnabled="False" Click="Sell_Click" Cursor="Hand"/>
-        <Label Content="Name" HorizontalAlignment="Left" Margin="476,12,0,0" VerticalAlignment="Top" Height="26"/>
-        <Label Content="Year" HorizontalAlignment="Left" Margin="476,52,0,0" VerticalAlignment="Top" Height="26"/>
+        <Button x:Name="Save" Content="Save" HorizontalAlignment="Left" Margin="560,154,0,0" VerticalAlignment="Top" Width="80" IsEnabled="False" Cursor="Hand" Click="Save_Click"/>
+        <Button x:Name="New_Table" Content="New Car" HorizontalAlignment="Left" Margin="560,129,0,0" VerticalAlignment="Top" Width="80" IsEnabled="False" Click="New_Table_Click" Cursor="Hand"/>
+        <Button x:Name="Sell" Content="Sell" HorizontalAlignment="Left" Margin="560,179,0,0" VerticalAlignment="Top" Width="80" IsEnabled="False" Click="Sell_Click" Cursor="Hand"/>
+        <Label Content="Name" HorizontalAlignment="Left" Margin="556,11,0,0" VerticalAlignment="Top" Height="26"/>
+        <Label Content="Year" HorizontalAlignment="Left" Margin="556,51,0,0" VerticalAlignment="Top" Height="26"/>
         <Label Content="Engine" HorizontalAlignment="Left" Margin="76,17,0,0" VerticalAlignment="Top" Height="26"/>
         <Label Content="0-100" HorizontalAlignment="Left" Margin="76,57,0,0" VerticalAlignment="Top" Height="26"/>
         <Label Content="Car Type" HorizontalAlignment="Left" Margin="76,97,0,0" VerticalAlignment="Top" Height="26"/>
-        <Label Content="1 : N" HorizontalAlignment="Left" Margin="302,106,0,0" VerticalAlignment="Top"/>
+        <Label Content="1 : N" HorizontalAlignment="Left" Margin="340,103,0,0" VerticalAlignment="Top"/>
         <Button x:Name="Debug" Content="Debug is Off" HorizontalAlignment="Left" Margin="80,220,0,0" VerticalAlignment="Top" Width="80" Click="Debug_Click" IsEnabled="False" Cursor="Hand"/>
         <Label x:Name="Debug_Label" Content="" HorizontalAlignment="Left" Margin="80,145,0,0" VerticalAlignment="Top" Height="55" Width="80"/>
+        <Label x:Name="Label_L_Help" Content="" HorizontalAlignment="Left" Margin="175,12,0,0" VerticalAlignment="Top" Width="180" Height="33" Opacity="0.5"/>
 
     </Grid>
 </Window>

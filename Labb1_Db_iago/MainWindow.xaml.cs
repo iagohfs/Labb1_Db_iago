@@ -22,17 +22,22 @@ namespace Labb1_Db_iago
     /// </summary>
     public partial class MainWindow : Window
     {
+        private const string connectionStringLaptop = @"Data Source=(localdb)\ProjectsV13;Initial Catalog=LabDb1;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
 
-        string connectionStringLaptop = @"Data Source=(localdb)\ProjectsV13;Initial Catalog=LabDb1;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
+        private string update = "update";
 
-        public string update = "update";
         private bool leftIsSelected;
         private bool rightIsSelected;
         private bool Debugger;
-        int ListCountRight { get; set; }
-        int ListCountLeft { get; set; }
-        public int ItemIdLeft { get; private set; }
-        public int ItemIdRight { get; private set; }
+        private static int firstCarNr = 1;
+
+        private int ListCountRight { get; set; }
+        private int ListCountLeft { get; set; }
+        private int ItemIdLeft { get; set; }
+        private int ItemIdRight { get; set; }
+        private int TempCarNr { get; set; }
+        private int TempIndexRight { get; set; }
+        private int TempItemNrRight { get; set; }
 
         public MainWindow()
         {
@@ -51,7 +56,7 @@ namespace Labb1_Db_iago
 
         private void Sell_Click(object sender, RoutedEventArgs e)
         {
-            if (rightIsSelected) DeleteRight(GetItemIdRight());
+            if (rightIsSelected) DeleteRight(GetItemNrRight());
 
             if (leftIsSelected) DeleteLeft(GetItemIdLeft());
         }
@@ -106,11 +111,10 @@ namespace Labb1_Db_iago
             {
                 LeftBoxPrintSelectedItem(ListBox_Left.SelectedIndex);
 
-
                 if (Debugger) ListBox_Left.Items.Add(GetItemIdLeft());
             }
 
-            if (ListBox_Left.IsMouseOver && ListBox_Left.SelectedIndex > -1)
+            if (ListBox_Left.IsMouseOver || ListBox_Left.SelectedIndex > -1)
             {
                 rightIsSelected = false;
 
@@ -119,6 +123,8 @@ namespace Labb1_Db_iago
                 New_Table.IsEnabled = true;
                 Sell.IsEnabled = true;
                 Save.IsEnabled = true;
+
+                Label_L_Help.Content = "Double click to create a linked car.";
             }
 
         }
@@ -132,15 +138,17 @@ namespace Labb1_Db_iago
                 if (Debugger) ListBox_Right.Items.Add(GetItemIdRight());
             }
 
-            if (ListBox_Right.IsMouseOver && ListBox_Right.SelectedIndex > -1)
+            if (ListBox_Right.IsMouseOver || ListBox_Right.SelectedIndex > -1)
             {
                 leftIsSelected = false;
 
                 rightIsSelected = true;
                 if (Debugger) Debug_Label.Content = "RB " + rightIsSelected.ToString() + "\nLB " + leftIsSelected.ToString();
-                New_Table.IsEnabled = true;
+                New_Table.IsEnabled = false;
                 Sell.IsEnabled = true;
                 Save.IsEnabled = true;
+
+                Label_L_Help.Content = "";
             }
 
         }
@@ -172,22 +180,24 @@ namespace Labb1_Db_iago
 
         public int CountLeft()
         {
-            SqlConnection thisConnection = new SqlConnection(connectionStringLaptop);
+            SqlConnection countLeftConnection = new SqlConnection(connectionStringLaptop);
 
             try
             {
                 string countLeft = "select max(id) from VehiclesL";
 
-                thisConnection.Open();
+                countLeftConnection.Open();
 
-                SqlCommand countCommand = new SqlCommand(countLeft, thisConnection);
+                SqlCommand countCommand = new SqlCommand(countLeft, countLeftConnection);
 
                 ListCountLeft = (int)countCommand.ExecuteScalar();
+
+                countLeftConnection.Close();
 
             }
             catch (SqlException)
             {
-                ConnectionError('L', "@TCount L");
+                ConnectionError('L', "@CountLeft()");
             }
 
             if (CountRight() > ListCountLeft) return ListCountLeft + 1; else return ListCountLeft;
@@ -207,10 +217,12 @@ namespace Labb1_Db_iago
 
                 ListCountRight = (int)countCommand.ExecuteScalar();
 
+                thisConnection.Close();
+
             }
             catch (SqlException)
             {
-                ConnectionError('R', "@TCount R");
+                ConnectionError('R', "@CountRight()");
             }
 
             return ListCountRight;
@@ -237,7 +249,7 @@ namespace Labb1_Db_iago
             }
             catch (SqlException)
             {
-                ConnectionError('L', "@Delete L");
+                ConnectionError('L', "@DeleteLeft()");
             }
         }
 
@@ -247,7 +259,7 @@ namespace Labb1_Db_iago
 
             try
             {
-                string rightBoxQuery = $"delete From VehiclesR where CarId = {(id)}";
+                string rightBoxQuery = $"delete From VehiclesR where CarNr = {(id)}";
 
                 rightConnection.Open();
 
@@ -262,7 +274,7 @@ namespace Labb1_Db_iago
             }
             catch (SqlException)
             {
-                ConnectionError('R', "@Delete R");
+                ConnectionError('R', "@DeleteRight()");
             }
         }
 
@@ -295,7 +307,7 @@ namespace Labb1_Db_iago
             }
             catch (SqlException)
             {
-                ConnectionError('L', "@GetId L");
+                ConnectionError('L', "@GetItemIdLeft()");
             }
 
             return ItemIdLeft;
@@ -311,7 +323,38 @@ namespace Labb1_Db_iago
 
                 rightConnection.Open();
 
-                int tempIndexRight = 0;
+                SqlCommand command = new SqlCommand(rightBoxQuery, rightConnection);
+
+                using (SqlDataReader dataReader = command.ExecuteReader())
+                {
+                    while (dataReader.Read())
+                    {
+                        TempIndexRight = (int)(dataReader["CarId"]);
+                    }
+                }
+
+                rightConnection.Close();
+
+                ItemIdRight = TempIndexRight;
+
+            }
+            catch (SqlException)
+            {
+                ConnectionError('R', "@GetItemIdRight()");
+            }
+
+            return ItemIdRight;
+        }
+
+        private int GetItemNrRight()
+        {
+            SqlConnection rightConnection = new SqlConnection(connectionStringLaptop);
+
+            try
+            {
+                string rightBoxQuery = $"Select * From (Select Row_Number() Over (Order By CarId) As RwNr, * From VehiclesR) t2 Where RwNr = {ListBox_Right.SelectedIndex + 1}";
+
+                rightConnection.Open();
 
                 SqlCommand command = new SqlCommand(rightBoxQuery, rightConnection);
 
@@ -319,27 +362,53 @@ namespace Labb1_Db_iago
                 {
                     while (dataReader.Read())
                     {
-                        tempIndexRight = (int)(dataReader["CarId"]);
+                        TempIndexRight = (int)(dataReader["CarNr"]);
                     }
                 }
 
                 rightConnection.Close();
 
-                ItemIdRight = tempIndexRight;
+                TempItemNrRight = TempIndexRight;
 
             }
             catch (SqlException)
             {
-                ConnectionError('R', "@GetId R");
+                ConnectionError('R', "@GetItemIdRight()");
             }
 
-            return ItemIdRight;
+            return TempItemNrRight;
+        }
+
+        public int GetCarNr(int id)
+        {
+            SqlConnection GetRCarID = new SqlConnection(connectionStringLaptop);
+
+            try
+            {
+                string countRight = $"select max(CarNr) from VehiclesR where CarId = {id + 1}";
+
+                GetRCarID.Open();
+
+                SqlCommand countRightCommand = new SqlCommand(countRight, GetRCarID);
+
+                TempCarNr = (int)countRightCommand.ExecuteScalar();
+
+                //command.Parameters.AddWithValue
+
+                GetRCarID.Close();
+
+            }
+            catch (SqlException)
+            {
+                ConnectionError('L', "@GetCarNr()");
+            }
+
+            return TempCarNr;
         }
 
         public void InsertLeft(int id)
         {
-            InsertRight(id);
-
+            InsertRight(id, firstCarNr - 1);
             try
             {
                 SqlConnection leftInsertConnection = new SqlConnection(connectionStringLaptop);
@@ -350,6 +419,7 @@ namespace Labb1_Db_iago
 
                 SqlCommand command = new SqlCommand(insertLeftQuery, leftInsertConnection);
 
+                //command.Parameters.AddWithValue
                 command.ExecuteNonQuery();
 
                 leftInsertConnection.Close();
@@ -357,19 +427,19 @@ namespace Labb1_Db_iago
             }
             catch (SqlException)
             {
-                ConnectionError('L', "@Insert L");
+                ConnectionError('L', "@InsertLeft()");
             }
 
             OpenUpdateDb();
         }
 
-        public void InsertRight(int id)
+        public void InsertRight(int id, int carNr)
         {
             SqlConnection rightInsertConnection = new SqlConnection(connectionStringLaptop);
 
             try
             {
-                string insertRightQuery = $"insert into VehiclesR values ({(id + 1)}, 'Car Name', 1234)";
+                string insertRightQuery = $"insert into VehiclesR values ({(id + 1)}, 'Car Name', 1234, {(carNr + 1)})";
 
                 rightInsertConnection.Open();
 
@@ -382,7 +452,7 @@ namespace Labb1_Db_iago
             }
             catch (SqlException)
             {
-                ConnectionError('R', "@Insert R");
+                ConnectionError('R', "@InsertRight()");
             }
 
             OpenUpdateDb();
@@ -410,7 +480,7 @@ namespace Labb1_Db_iago
             }
             else if (commandL == "insert")
             {
-                InsertLeft(CountLeft());
+                InsertLeft(GetItemIdLeft());
             }
 
         }
@@ -424,7 +494,7 @@ namespace Labb1_Db_iago
             }
             else if (commandR == "insert")
             {
-                InsertRight(CountRight());
+                //InsertRight(CountRight());
             }
 
         }
@@ -447,7 +517,7 @@ namespace Labb1_Db_iago
                     while (dataReader.Read())
                     {
                         TextBox_LEngine.Text = (dataReader["Engine"].ToString());
-                        TextBox_LSeconds.Text = (dataReader["to100"].ToString());
+                        TextBox_LSeconds.Text = (dataReader["to100"]).ToString();
                         TextBox_LType.Text = (dataReader["Type"].ToString());
                     }
 
@@ -460,7 +530,7 @@ namespace Labb1_Db_iago
             }
             catch (SqlException)
             {
-                ConnectionError('L', "@Print L");
+                ConnectionError('L', "@LeftBoxPrintSelectedItem()");
             }
         }
 
@@ -485,10 +555,12 @@ namespace Labb1_Db_iago
                         TextBox_RYear.Text = (dataReader["Year"].ToString());
                     }
                 }
+
+                RightBoxConnection.Close();
             }
             catch (SqlException)
             {
-                ConnectionError('R', "@Print R");
+                ConnectionError('R', "@RightBoxPrintSelectedItem()");
             }
         }
 
@@ -513,7 +585,7 @@ namespace Labb1_Db_iago
             }
             catch (SqlException)
             {
-                ConnectionError('L', "@Save L");
+                ConnectionError('L', "@SaveChangesLeft()");
             }
         }
 
@@ -538,7 +610,7 @@ namespace Labb1_Db_iago
             }
             catch (SqlException)
             {
-                ConnectionError('L', "@Save L");
+                ConnectionError('L', "@SaveChangesRight()");
             }
         }
 
@@ -562,19 +634,21 @@ namespace Labb1_Db_iago
                 {
                     while (dataReader.Read())
                     {
-                        ListBox_Left.Items.Add(dataReader["Id"].ToString());
+                        ListBox_Left.Items.Add("Engine " + dataReader["Id"].ToString() + " properties");
                     }
                 }
+
+                thisConnection.Close();
 
                 B_Open_Update.Content = "Update";
                 B_Open_Update.IsEnabled = true;
 
-                ListBox_Left.SelectedIndex = 0;
+                //ListBox_Left.SelectedIndex = 0;
 
             }
             catch (SqlException)
             {
-                ConnectionError('L', "@Update L");
+                ConnectionError('L', "@UpdateLeft()");
             }
         }
 
@@ -586,7 +660,7 @@ namespace Labb1_Db_iago
             {
                 ListBox_Right.Items.Clear();
 
-                string updateRight = $"select CarId from VehiclesR";
+                string updateRight = $"select CarId, CarNr from VehiclesR";
 
                 thisConnection.Open();
 
@@ -596,18 +670,25 @@ namespace Labb1_Db_iago
                 {
                     while (dataReader.Read())
                     {
-                        ListBox_Right.Items.Add(dataReader["CarId"].ToString());
+                        ListBox_Right.Items.Add("Car : " + dataReader["CarNr"].ToString() + " Engine: " + dataReader["CarId"].ToString());
                     }
                 }
 
-                ListBox_Right.SelectedIndex = 0;
+                thisConnection.Close();
+
+                //ListBox_Right.SelectedIndex = 0;
 
             }
             catch (SqlException)
             {
-                ConnectionError('R', "@Update R");
+                ConnectionError('R', "@UpdateRight()");
             }
 
+        }
+
+        private void ListBox_Left_Double_Click(object sender, MouseButtonEventArgs e)
+        {
+            InsertRight((GetItemIdLeft() - 1), (GetCarNr(ListBox_Left.SelectedIndex)));
         }
 
     }
