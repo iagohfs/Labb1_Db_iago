@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Labb1_Db_iago"
         mc:Ignorable="d"
-        Title="My Database" Height="291" Width="682.491" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen">
+        Title="My Database" Height="291" Width="682.491" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen" Icon="Graphicloads-Colorful-Long-Shadow-Car.ico">
     <Grid Margin="0,0,2,0">
         <ListBox x:Name="ListBox_Right" HorizontalAlignment="Left" Height="160" Margin="380,40,0,0" VerticalAlignment="Top" Width="160" SelectionChanged="ListBox_Right_SelectionChanged" Cursor="Hand" IsEnabled="False"/>
         <ListBox x:Name="ListBox_Left" HorizontalAlignment="Left" Height="160" Margin="180,40,0,0" VerticalAlignment="Top" Width="150" SelectionChanged="ListBox_Left_SelectionChanged" Cursor="Hand" IsEnabled="False" MouseDoubleClick="ListBox_Left_Double_Click"/>
@@ -21,12 +21,12 @@
         <Label Content="Name" HorizontalAlignment="Left" Margin="556,11,0,0" VerticalAlignment="Top" Height="26"/>
         <Label Content="Year" HorizontalAlignment="Left" Margin="556,51,0,0" VerticalAlignment="Top" Height="26"/>
         <Label Content="Engine" HorizontalAlignment="Left" Margin="76,17,0,0" VerticalAlignment="Top" Height="26"/>
-        <Label Content="0-100" HorizontalAlignment="Left" Margin="76,57,0,0" VerticalAlignment="Top" Height="26"/>
+        <Label Content="0-100" HorizontalAlignment="Left" Margin="75,57,0,0" VerticalAlignment="Top" Height="26"/>
         <Label Content="Car Type" HorizontalAlignment="Left" Margin="76,97,0,0" VerticalAlignment="Top" Height="26"/>
         <Label Content="1 : N" HorizontalAlignment="Left" Margin="340,103,0,0" VerticalAlignment="Top"/>
         <Button x:Name="Debug" Content="Debug is Off" HorizontalAlignment="Left" Margin="80,220,0,0" VerticalAlignment="Top" Width="80" Click="Debug_Click" IsEnabled="False" Cursor="Hand"/>
         <Label x:Name="Debug_Label" Content="" HorizontalAlignment="Left" Margin="80,145,0,0" VerticalAlignment="Top" Height="55" Width="80"/>
-        <Label x:Name="Label_L_Help" Content="" HorizontalAlignment="Left" Margin="175,12,0,0" VerticalAlignment="Top" Width="180" Height="33" Opacity="0.5"/>
+        <Label x:Name="Label_L_Help" Content="" HorizontalAlignment="Left" Margin="175,12,0,0" VerticalAlignment="Top" Width="365" Height="33" Opacity="0.5"/>
 
     </Grid>
 </Window>
